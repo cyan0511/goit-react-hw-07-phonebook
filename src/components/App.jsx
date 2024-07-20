@@ -2,20 +2,27 @@ import { ContactForm } from './ContactForm/ContactForm';
 import { ContactList } from './ContactList/ContactList';
 import { Filter } from './Filter/Filter';
 import { useDispatch, useSelector } from 'react-redux';
-import { getFilter } from '../redux/selectors';
+import { getError, getFilter, getIsLoading } from '../redux/selectors';
 import { setFilter } from '../redux/filterSlice';
+import { fetchContacts } from '../redux/operations';
+import { useEffect } from 'react';
+import Loader from './Loader/Loader';
 
 export function App() {
   const dispatch = useDispatch();
-  const { findBy, value } = useSelector(getFilter);
+  const isLoading = useSelector(getIsLoading);
+  const error = useSelector(getError);
 
-  const handleFindBy = e => {
-    e.preventDefault();
-    dispatch(setFilter({ value, findBy: findBy === 'name' ? 'number' : 'name' }))
-  };
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
+
 
     return (
       <div className="container">
+        {isLoading && (
+          <Loader />
+        )}
         <h1>Phonebook</h1>
         <div className="phonebook-container">
           <div>
@@ -24,10 +31,8 @@ export function App() {
           </div>
           <div>
             <h2>Contacts</h2>
-            <div style={{display: 'flex', flexDirection: 'row'}}>
-            <button type="button" style={{ width: '75px' }} onClick={handleFindBy}>{findBy === 'name' ? 'ABC' : '123'}</button>
+            {error && <b style={{ color: 'red' }}>Error: {error}</b>}
             <Filter />
-            </div>
             <ContactList />
           </div>
         </div>
